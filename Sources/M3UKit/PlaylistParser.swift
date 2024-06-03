@@ -77,14 +77,14 @@ public final class PlaylistParser {
 
       if self.isInfoLine(line) {
         lastMetadataLine = line
-      } else if let url = URL(string: line) {
+      } else if !self.isEXT(line), let url = URL(string: line) {
         lastURL = url
       }
 
       if let metadataLine = lastMetadataLine, let url = lastURL {
         do {
           let metadata = try self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
-          let kind = self.parseMediaKind(url)
+          let kind = self.parseMediaKind(url, duration: metadata.duration)
           medias.append(.init(metadata: metadata, kind: kind, url: url))
           lastMetadataLine = nil
           lastURL = nil
@@ -127,14 +127,14 @@ public final class PlaylistParser {
 
       if self.isInfoLine(line) {
         lastMetadataLine = line
-      } else if let url = URL(string: line) {
+      } else if !self.isEXT(line), let url = URL(string: line) {
         lastURL = url
       }
 
       if let metadataLine = lastMetadataLine, let url = lastURL {
         do {
           let metadata = try self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
-          let kind = self.parseMediaKind(url)
+          let kind = self.parseMediaKind(url, duration: metadata.duration)
           handler(.init(metadata: metadata, kind: kind, url: url))
           lastMetadataLine = nil
           lastURL = nil
@@ -225,12 +225,16 @@ public final class PlaylistParser {
   internal func parseMetadata(line: Int, rawString: String, url: URL) throws -> Playlist.Media.Metadata {
     let duration = try extractDuration(line: line, rawString: rawString)
     let attributes = parseAttributes(rawString: rawString, url: url)
-    let name = parseSeasonEpisode(extractName(rawString)).name
+    let name = extractName(rawString)
     return (duration, attributes, name)
   }
 
   internal func isInfoLine(_ input: String) -> Bool {
     return input.starts(with: "#EXTINF:")
+  }
+    
+  internal func isEXT(_ input: String) -> Bool {
+    return input.starts(with: "#EXT")
   }
 
   internal func extractDuration(line: Int, rawString: String) throws -> Int {
@@ -251,7 +255,7 @@ public final class PlaylistParser {
     String(input.lastPathComponent.split(separator: ".").first ?? "")
   }
 
-  internal func parseMediaKind(_ input: URL) -> Playlist.Media.Kind {
+    internal func parseMediaKind(_ input: URL, duration: Int = 0) -> Playlist.Media.Kind {
     let string = input.absoluteString
     if mediaKindSeriesRegex.numberOfMatches(source: string) == 1 {
       return .series
@@ -259,7 +263,7 @@ public final class PlaylistParser {
     if mediaKindMoviesRegex.numberOfMatches(source: string) == 1 {
       return .movie
     }
-    if mediaKindLiveRegex.numberOfMatches(source: string) == 1 {
+    if mediaKindLiveRegex.numberOfMatches(source: string) == 1 || duration == -1 {
       return .live
     }
     return .unknown
@@ -267,52 +271,10 @@ public final class PlaylistParser {
 
   internal func parseAttributes(rawString: String, url: URL) -> Playlist.Media.Attributes {
     var attributes = Playlist.Media.Attributes()
-    let id = attributesIdRegex.firstMatch(in: rawString) ?? ""
-    attributes.id = id
-    if id.isEmpty && options.contains(.extractIdFromURL) {
-      attributes.id = extractId(url)
-    }
-    if let name = attributesNameRegex.firstMatch(in: rawString) {
-      let show = parseSeasonEpisode(name)
-      attributes.name = show.name
-      attributes.seasonNumber = show.se?.s
-      attributes.episodeNumber = show.se?.e
-    }
-    if let country = attributesCountryRegex.firstMatch(in: rawString) {
-      attributes.country = country
-    }
-    if let language = attributesLanguageRegex.firstMatch(in: rawString) {
-      attributes.language = language
-    }
-    if let logo = attributesLogoRegex.firstMatch(in: rawString) {
-      attributes.logo = logo
-    }
-    if let channelNumber = attributesChannelNumberRegex.firstMatch(in: rawString) {
-      attributes.channelNumber = channelNumber
-    }
-    if let shift = attributesShiftRegex.firstMatch(in: rawString) {
-      attributes.shift = shift
-    }
     if let groupTitle = attributesGroupTitleRegex.firstMatch(in: rawString) {
       attributes.groupTitle = groupTitle
     }
     return attributes
-  }
-
-  internal func parseSeasonEpisode(_ input: String) -> Show {
-    let ranges = seasonEpisodeRegex.matchingRanges(in: input)
-    guard
-      ranges.count == 3,
-      let s = Int(input[ranges[1]]),
-      let e = Int(input[ranges[2]])
-    else {
-      return (name: input, se: nil)
-    }
-    var name = input
-    if options.contains(.removeSeriesInfoFromText) {
-      name.removeSubrange(ranges[0])
-    }
-    return (name: name, se: (s, e))
   }
 
   // MARK: - Regex
@@ -324,14 +286,5 @@ public final class PlaylistParser {
   internal let mediaKindSeriesRegex: RegularExpression = #"\/series\/"#
   internal let mediaKindLiveRegex: RegularExpression = #"\/live\/"#
 
-  internal let seasonEpisodeRegex: RegularExpression = #" S(\d+) E(\d+)"#
-
-  internal let attributesIdRegex: RegularExpression = #"tvg-id=\"(.?|.+?)\""#
-  internal let attributesNameRegex: RegularExpression = #"tvg-name=\"(.?|.+?)\""#
-  internal let attributesCountryRegex: RegularExpression = #"tvg-country=\"(.?|.+?)\""#
-  internal let attributesLanguageRegex: RegularExpression = #"tvg-language=\"(.?|.+?)\""#
-  internal let attributesLogoRegex: RegularExpression = #"tvg-logo=\"(.?|.+?)\""#
-  internal let attributesChannelNumberRegex: RegularExpression = #"tvg-chno=\"(.?|.+?)\""#
-  internal let attributesShiftRegex: RegularExpression = #"tvg-shift=\"(.?|.+?)\""#
   internal let attributesGroupTitleRegex: RegularExpression = #"group-title=\"(.?|.+?)\""#
 }

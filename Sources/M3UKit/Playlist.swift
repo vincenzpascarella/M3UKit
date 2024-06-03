@@ -35,67 +35,17 @@ public struct Playlist: Equatable, Hashable, Codable {
       /// - Parameters:
       ///   - id: id.
       ///   - name: name.
-      ///   - country: country.
-      ///   - language: language.
-      ///   - logo: logo.
-      ///   - channelNumber: channel number.
-      ///   - shift: shift.
       ///   - groupTitle: group title.
       ///   - seasonNumber: Season number (for TV shows).
       ///   - episodeNumber: Episode number (for TV shows).
       public init(
-        id: String? = nil,
-        name: String? = nil,
-        country: String? = nil,
-        language: String? = nil,
-        logo: String? = nil,
-        channelNumber: String? = nil,
-        shift: String? = nil,
-        groupTitle: String? = nil,
-        seasonNumber: Int? = nil,
-        episodeNumber: Int? = nil
+        groupTitle: String? = nil
       ) {
-        self.id = id
-        self.name = name
-        self.country = country
-        self.language = language
-        self.logo = logo
-        self.channelNumber = channelNumber
-        self.shift = shift
         self.groupTitle = groupTitle
-        self.seasonNumber = seasonNumber
-        self.episodeNumber = episodeNumber
       }
-
-      /// tvg-id.
-      public var id: String?
-
-      /// tvg-name.
-      public var name: String?
-
-      /// tvg-country.
-      public var country: String?
-
-      /// tvg-language.
-      public var language: String?
-
-      /// tvg-logo.
-      public var logo: String?
-
-      /// tvg-chno.
-      public var channelNumber: String?
-
-      /// tvg-shift.
-      public var shift: String?
 
       /// group-title.
       public var groupTitle: String?
-
-      /// Season number (for TV shows).
-      public var seasonNumber: Int?
-
-      /// Episode number (for TV shows).
-      public var episodeNumber: Int?
     }
 
     /// Enum representing media kind.

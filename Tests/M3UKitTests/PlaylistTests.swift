@@ -26,28 +26,11 @@ import XCTest
 
 final class PlaylistTests: XCTestCase {
   func testInit() {
-    let id = "id"
     let name = "name"
-    let country = "country"
-    let language = "language"
-    let logo = "logo"
-    let channelNumber = "channelNumber"
-    let shift = "shift"
     let groupTitle = "groupTitle"
-    let seasonNumber = 1
-    let episodeNumber = 5
 
     let attributes = Playlist.Media.Attributes(
-      id: id,
-      name: name,
-      country: country,
-      language: language,
-      logo: logo,
-      channelNumber: channelNumber,
-      shift: shift,
-      groupTitle: groupTitle,
-      seasonNumber: seasonNumber,
-      episodeNumber: episodeNumber
+      groupTitle: groupTitle
     )
 
     let duration = 0
@@ -67,16 +50,7 @@ final class PlaylistTests: XCTestCase {
     XCTAssertEqual(media.name, name)
     XCTAssertEqual(media.kind, kind)
     XCTAssertEqual(media.url, url)
-    XCTAssertEqual(media.attributes.id, id)
-    XCTAssertEqual(media.attributes.name, name)
-    XCTAssertEqual(media.attributes.country, country)
-    XCTAssertEqual(media.attributes.language, language)
-    XCTAssertEqual(media.attributes.logo, logo)
-    XCTAssertEqual(media.attributes.channelNumber, channelNumber)
-    XCTAssertEqual(media.attributes.shift, shift)
     XCTAssertEqual(media.attributes.groupTitle, groupTitle)
-    XCTAssertEqual(media.attributes.seasonNumber, seasonNumber)
-    XCTAssertEqual(media.attributes.episodeNumber, episodeNumber)
 
     XCTAssertEqual(Playlist(medias: [media]).medias, [media])
   }

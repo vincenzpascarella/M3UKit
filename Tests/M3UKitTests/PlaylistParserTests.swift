@@ -26,16 +26,12 @@ import XCTest
 
 final class PlaylistParserTests: XCTestCase {
   func testParsing() throws {
-    let parser = PlaylistParser(options: .removeSeriesInfoFromText)
-    XCTAssertEqual(parser.options, .removeSeriesInfoFromText)
+    let parser = PlaylistParser()
 
     let validURL = Bundle.module.url(forResource: "valid", withExtension: "m3u")!
     let playlist = try parser.parse(validURL)
     XCTAssertEqual(playlist.medias.count, 106)
-    XCTAssertEqual(playlist.medias[0].name, "TV SHOW")
-    XCTAssertEqual(playlist.medias[0].attributes.name, "TV SHOW")
-    XCTAssertEqual(playlist.medias[0].attributes.seasonNumber, 1)
-    XCTAssertEqual(playlist.medias[0].attributes.episodeNumber, 1)
+    XCTAssertEqual(playlist.medias[0].name, "TV SHOW S01 E01")
 
     let invalidURL = Bundle.module.url(forResource: "invalid", withExtension: "m3u")!
     XCTAssertThrowsError(try parser.parse(invalidURL))
@@ -159,13 +155,6 @@ final class PlaylistParserTests: XCTestCase {
     let url = URL(string: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8")!
     let parser = PlaylistParser(options: .extractIdFromURL)
     let attributes = parser.parseAttributes(rawString: rawMedia, url: url)
-    XCTAssertEqual(attributes.name, "DWEnglish.de")
-    XCTAssertEqual(attributes.id, "DWEnglish.de")
-    XCTAssertEqual(attributes.country, "INT")
-    XCTAssertEqual(attributes.language, "English")
-    XCTAssertEqual(attributes.logo, "https://i.imgur.com/A1xzjOI.png")
-    XCTAssertEqual(attributes.channelNumber, "1")
-    XCTAssertEqual(attributes.shift, "0")
     XCTAssertEqual(attributes.groupTitle, "News")
   }
 
@@ -176,33 +165,7 @@ final class PlaylistParserTests: XCTestCase {
     let url = URL(string: "https://domain.com/live/username/password/123456.mp4")!
     let parser = PlaylistParser(options: .extractIdFromURL)
     let attributes = parser.parseAttributes(rawString: rawMedia, url: url)
-    XCTAssertEqual(attributes.name, "DWEnglish.de")
-    XCTAssertEqual(attributes.id, "123456")
-    XCTAssertEqual(attributes.country, "INT")
-    XCTAssertEqual(attributes.language, "English")
-    XCTAssertEqual(attributes.logo, "https://i.imgur.com/A1xzjOI.png")
-    XCTAssertEqual(attributes.channelNumber, "1")
-    XCTAssertEqual(attributes.shift, "0")
     XCTAssertEqual(attributes.groupTitle, "News")
-  }
-
-
-  func testSeasonEpisodeParsing() {
-    let parser = PlaylistParser()
-    let input = "Kyou Kara Ore Wa!! LIVE ACTION S01 E09"
-    let output = parser.parseSeasonEpisode(input)
-    XCTAssertEqual(output.name, "Kyou Kara Ore Wa!! LIVE ACTION S01 E09")
-    XCTAssertEqual(output.se?.s, 1)
-    XCTAssertEqual(output.se?.e, 9)
-  }
-
-  func testSeasonEpisodeParsingWithNameUpdate() {
-    let parser = PlaylistParser(options: .removeSeriesInfoFromText)
-    let input = "Kyou Kara Ore Wa!! LIVE ACTION S01 E09"
-    let output = parser.parseSeasonEpisode(input)
-    XCTAssertEqual(output.name, "Kyou Kara Ore Wa!! LIVE ACTION")
-    XCTAssertEqual(output.se?.s, 1)
-    XCTAssertEqual(output.se?.e, 9)
   }
 
   @available(iOS 15, tvOS 15, macOS 12, watchOS 8, *)
