@@ -65,14 +65,16 @@ public struct Playlist: Equatable, Hashable, Codable {
     internal init(
       metadata: Metadata,
       kind: Kind,
-      url: URL
+      url: URL,
+      lineInM3U: Int
     ) {
       self.init(
         duration: metadata.duration,
         attributes: metadata.attributes,
         kind: kind,
         name: metadata.name,
-        url: url
+        url: url,
+        lineInM3U: lineInM3U
       )
     }
 
@@ -88,13 +90,15 @@ public struct Playlist: Equatable, Hashable, Codable {
       attributes: Attributes,
       kind: Kind,
       name: String,
-      url: URL
+      url: URL,
+      lineInM3U: Int
     ) {
       self.duration = duration
       self.attributes = attributes
       self.kind = kind
       self.name = name
       self.url = url
+      self.lineInM3U = lineInM3U
     }
 
     /// Duration, Usually -1 for live stream content.
@@ -111,6 +115,9 @@ public struct Playlist: Equatable, Hashable, Codable {
 
     /// Media URL.
     public var url: URL
+    
+    /// Used to discriminate equals streams
+    public var lineInM3U: Int
   }
 
   /// Create a playlist.

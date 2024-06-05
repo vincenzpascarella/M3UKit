@@ -85,7 +85,7 @@ public final class PlaylistParser {
         do {
           let metadata = try self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
           let kind = self.parseMediaKind(url, duration: metadata.duration)
-          medias.append(.init(metadata: metadata, kind: kind, url: url))
+          medias.append(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
           lastMetadataLine = nil
           lastURL = nil
         } catch {
@@ -135,7 +135,7 @@ public final class PlaylistParser {
         do {
           let metadata = try self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
           let kind = self.parseMediaKind(url, duration: metadata.duration)
-          handler(.init(metadata: metadata, kind: kind, url: url))
+          handler(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
           lastMetadataLine = nil
           lastURL = nil
         } catch {
