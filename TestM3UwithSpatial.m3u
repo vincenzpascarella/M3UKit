@@ -1,6 +1,14 @@
 #EXTM3U
-#EXTINF:-1 tvg-id="" tvg-name="Historic_planet_content" tvg-logo="" group-title="Historic planet content",Historic Plane
+#EXTINF:-1 tvg-id="" tvg-name="Historic_planet_content" tvg-logo="" group-title="Apple Examples",Historic Plane
 https://devstreaming-cdn.apple.com/videos/streaming/examples/historic_planet_content_2023-10-26-3d-video/main.m3u8
+#EXTINF:-1 tvg-id="" tvg-name="adv_dv_atmos" tvg-logo="" group-title="Apple Examples",Adv_Dv_Atmos
+https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8
+#EXTINF:-1 tvg-id="" tvg-name="Beach" tvg-logo="" group-title="Apple Examples",Beach
+http://playgrounds-cdn.apple.com/assets/beach/index.m3u8
+#EXTINF:-1 tvg-id="" tvg-name="Lake" tvg-logo="" group-title="Apple Examples",Lake
+http://playgrounds-cdn.apple.com/assets/lake/index.m3u8
+#EXTINF:-1 tvg-id="" tvg-name="Camping" tvg-logo="" group-title="Apple Examples",Camping
+http://playgrounds-cdn.apple.com/assets/camping/index.m3u8
 #EXTINF:-1 tvg-country="IT" tvg-logo="https://upload.wikimedia.org/wikipedia/it/thumb/9/93/Logo_Deejay.svg/512px-Logo_Deejay.svg.png" group-title="ITALY",Deejay TV (1080p)
 https://4c4b867c89244861ac216426883d1ad0.msvdn.net/live/S85984808/sMO0tz9Sr2Rk/playlist.m3u8
 #EXTINF:-1 tvg-name="Food Network" tvg-logo="https://i.imgur.com/i60OYr9.png" group-title="Italy",Food Network
