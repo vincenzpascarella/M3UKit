@@ -91,7 +91,7 @@ public struct Playlist: Equatable, Hashable, Codable {
       kind: Kind,
       name: String,
       url: URL,
-      lineInM3U: Int
+      lineInM3U: Int? = nil
     ) {
       self.duration = duration
       self.attributes = attributes
@@ -117,7 +117,7 @@ public struct Playlist: Equatable, Hashable, Codable {
     public var url: URL
     
     /// Used to discriminate equals streams
-    public var lineInM3U: Int
+    public var lineInM3U: Int?
   }
 
   /// Create a playlist.
