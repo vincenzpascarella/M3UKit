@@ -69,7 +69,6 @@ public struct Playlist: Equatable, Hashable, Codable {
       lineInM3U: Int
     ) {
       self.init(
-        duration: metadata.duration,
         attributes: metadata.attributes,
         kind: kind,
         name: metadata.name,
@@ -86,23 +85,18 @@ public struct Playlist: Equatable, Hashable, Codable {
     ///   - name: name.
     ///   - url: url.
     public init(
-      duration: Int,
       attributes: Attributes,
       kind: Kind,
       name: String,
       url: URL,
       lineInM3U: Int? = nil
     ) {
-      self.duration = duration
       self.attributes = attributes
       self.kind = kind
       self.name = name
       self.url = url
       self.lineInM3U = lineInM3U
     }
-
-    /// Duration, Usually -1 for live stream content.
-    public var duration: Int
 
     /// Attributes.
     public var attributes: Attributes

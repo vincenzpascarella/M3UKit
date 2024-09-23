@@ -4,6 +4,8 @@ import PackageDescription
 
 let package = Package(
     name: "M3UKit",
+    defaultLocalization: "en",
+    platforms: [.iOS(.v15)],
     products: [
         .library(
             name: "M3UKit",
@@ -14,7 +16,8 @@ let package = Package(
     targets: [
         .target(
             name: "M3UKit",
-            dependencies: []
+            dependencies: [],
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "M3UKitTests",

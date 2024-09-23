@@ -200,7 +200,7 @@ public final class PlaylistParser {
       throw ParsingError.invalidSource
     }
     guard rawString.starts(with: filePrefix) else {
-      throw ParsingError.invalidSource
+      throw ParsingError.invalidSourcePrefix(filePrefix)
     }
     rawString.removeFirst(filePrefix.count)
     return rawString
@@ -208,14 +208,17 @@ public final class PlaylistParser {
 
   internal enum ParsingError: LocalizedError {
     case invalidSource
+    case invalidSourcePrefix(String)
     case missingDuration(Int, String)
 
     internal var errorDescription: String? {
       switch self {
       case .invalidSource:
-        return "The playlist is invalid"
+        return LocalizableString.invalidSource
+      case .invalidSourcePrefix(let prefix):
+          return LocalizableString.invalidSourcePrefix + " - \(prefix)"
       case .missingDuration(let line, let raw):
-        return "Line \(line): Missing duration in line \"\(raw)\""
+        return LocalizableString.missingDuration + "\(line) \"\(raw)\""
       }
     }
   }
