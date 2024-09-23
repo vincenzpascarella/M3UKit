@@ -29,3 +29,11 @@ http://31.220.41.88:8081/live/itv4.stream/chunks.m3u8
 https://lo2-1.gemporia.com/abrjewellerymaker/smil:livestream.smil/playlist.m3u8
 #EXTINF:-1 tvg-name="Sky News" tvg-logo="https://i.imgur.com/wNbxgqe.png" group-title="UK",Sky News
 https://skynews2-plutolive-vo.akamaized.net/cdhlsskynewsamericas/1013/latest.m3u8
+#EXTINF:-1 tvg-name="MKV 720p" tvg-logo="" group-title="MKV",MKV 720p
+https://getsamplefiles.com/download/mkv/sample-3.mkv
+#EXTINF:-1 tvg-name="MKV FHD" tvg-logo="" group-title="MKV",MKV FHD
+https://filesamples.com/samples/video/mkv/sample_1920x1080.mkv
+#EXTINF:-1 tvg-name="MKV 4K" tvg-logo="" group-title="MKV",MKV 4K
+https://filesamples.com/samples/video/mkv/sample_3840x2160.mkv
+#EXTINF:-1 tvg-name="MKV 2K" tvg-logo="" group-title="MKV",MKV 2K
+https://filesamples.com/samples/video/mkv/sample_2560x1440.mkv
