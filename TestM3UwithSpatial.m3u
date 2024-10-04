@@ -37,3 +37,5 @@ https://filesamples.com/samples/video/mkv/sample_1920x1080.mkv
 https://filesamples.com/samples/video/mkv/sample_3840x2160.mkv
 #EXTINF:-1 tvg-name="MKV 2K" tvg-logo="" group-title="MKV",MKV 2K
 https://filesamples.com/samples/video/mkv/sample_2560x1440.mkv
+#EXTINF:-1 tvg-name="MKV MultiSub&Audio" tvg-logo="" group-title="MKV",MKV MultiSub&Audio
+https://raw.githubusercontent.com/ietf-wg-cellar/matroska-test-files/master/test_files/test5.mkv

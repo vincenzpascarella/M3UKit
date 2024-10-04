@@ -200,7 +200,8 @@ public final class PlaylistParser {
       throw ParsingError.invalidSource
     }
     guard rawString.starts(with: filePrefix) else {
-      throw ParsingError.invalidSourcePrefix(filePrefix)
+        let actualFilePrefix = String(rawString.prefix { !$0.isNewline })
+        throw ParsingError.invalidSourcePrefix(actualFilePrefix)
     }
     rawString.removeFirst(filePrefix.count)
     return rawString
@@ -216,7 +217,7 @@ public final class PlaylistParser {
       case .invalidSource:
         return LocalizableString.invalidSource
       case .invalidSourcePrefix(let prefix):
-          return LocalizableString.invalidSourcePrefix + " - \(prefix)"
+          return LocalizableString.invalidSourcePrefix + (prefix.isEmpty ? "" : " - \(prefix)")
       case .missingDuration(let line, let raw):
         return LocalizableString.missingDuration + "\(line) \"\(raw)\""
       }
