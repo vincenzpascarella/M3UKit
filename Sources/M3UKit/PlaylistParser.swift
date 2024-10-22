@@ -275,10 +275,32 @@ public final class PlaylistParser {
 
   internal func parseAttributes(rawString: String, url: URL) -> Playlist.Media.Attributes {
     var attributes = Playlist.Media.Attributes()
+    if let name = attributesNameRegex.firstMatch(in: rawString) {
+      let show = parseSeasonEpisode(name)
+      attributes.name = show.name
+      attributes.seasonNumber = show.se?.s
+      attributes.episodeNumber = show.se?.e
+    }
     if let groupTitle = attributesGroupTitleRegex.firstMatch(in: rawString) {
       attributes.groupTitle = groupTitle
     }
     return attributes
+  }
+
+  internal func parseSeasonEpisode(_ input: String) -> Show {
+    let ranges = seasonEpisodeRegex.matchingRanges(in: input)
+    guard
+      ranges.count == 3,
+      let s = Int(input[ranges[1]]),
+      let e = Int(input[ranges[2]])
+    else {
+      return (name: input, se: nil)
+    }
+    var name = input
+    if options.contains(.removeSeriesInfoFromText) {
+      name.removeSubrange(ranges[0])
+    }
+    return (name: name, se: (s, e))
   }
 
   // MARK: - Regex
@@ -290,5 +312,7 @@ public final class PlaylistParser {
   internal let mediaKindSeriesRegex: RegularExpression = #"\/series\/"#
   internal let mediaKindLiveRegex: RegularExpression = #"\/live\/"#
 
+  internal let seasonEpisodeRegex: RegularExpression = #" (?i)s(\d+) ?(?i)e(\d+)"#
+  internal let attributesNameRegex: RegularExpression = #"tvg-name=\"(.?|.+?)\""#
   internal let attributesGroupTitleRegex: RegularExpression = #"group-title=\"(.?|.+?)\""#
 }
