@@ -39,13 +39,28 @@ public struct Playlist: Equatable, Hashable, Codable {
       ///   - seasonNumber: Season number (for TV shows).
       ///   - episodeNumber: Episode number (for TV shows).
       public init(
-        groupTitle: String? = nil
+        name: String? = nil,
+        groupTitle: String? = nil,
+        seasonNumber: Int? = nil,
+        episodeNumber: Int? = nil
       ) {
+        self.name = name
         self.groupTitle = groupTitle
+        self.seasonNumber = seasonNumber
+        self.episodeNumber = episodeNumber
       }
-
+        
+      /// tvg-name.
+      public var name: String?
+      
       /// group-title.
       public var groupTitle: String?
+
+      /// Season number (for TV shows).
+      public var seasonNumber: Int?
+
+      /// Episode number (for TV shows).
+      public var episodeNumber: Int?
     }
 
     /// Enum representing media kind.
