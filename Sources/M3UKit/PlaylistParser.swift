@@ -282,7 +282,11 @@ public final class PlaylistParser {
       attributes.episodeNumber = show.se?.e
     }
     if let groupTitle = attributesGroupTitleRegex.firstMatch(in: rawString) {
-      attributes.groupTitle = groupTitle
+      if attributes.seasonNumber != nil {
+          attributes.groupTitle = attributes.name
+      } else {
+          attributes.groupTitle = groupTitle
+      }
     }
     return attributes
   }
