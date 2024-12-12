@@ -66,7 +66,6 @@ public final class PlaylistParser {
 
     var lastMetadataLine: String?
     var lastURL: URL?
-    var mediaMetadataParsingError: Error?
     var lineNumber = 0
 
     rawString.enumerateLines { [weak self] line, stop in
@@ -82,23 +81,15 @@ public final class PlaylistParser {
       }
 
       if let metadataLine = lastMetadataLine, let url = lastURL {
-        do {
-          let metadata = try self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
-          let kind = self.parseMediaKind(url, duration: metadata.duration)
-          medias.append(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
-          lastMetadataLine = nil
-          lastURL = nil
-        } catch {
-          mediaMetadataParsingError = error
-          stop = true
-        }
+        let metadata = self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
+        let kind = self.parseMediaKind(url, duration: metadata.duration)
+        medias.append(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
+        lastMetadataLine = nil
+        lastURL = nil
+        
       }
 
       lineNumber += 1
-    }
-
-    if let error = mediaMetadataParsingError {
-      throw error
     }
 
     return Playlist(medias: medias)
@@ -116,7 +107,6 @@ public final class PlaylistParser {
 
     var lastMetadataLine: String?
     var lastURL: URL?
-    var mediaMetadataParsingError: Error?
     var lineNumber = 0
 
     rawString.enumerateLines { [weak self] line, stop in
@@ -132,22 +122,13 @@ public final class PlaylistParser {
       }
 
       if let metadataLine = lastMetadataLine, let url = lastURL {
-        do {
-          let metadata = try self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
-          let kind = self.parseMediaKind(url, duration: metadata.duration)
-          handler(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
-          lastMetadataLine = nil
-          lastURL = nil
-        } catch {
-          mediaMetadataParsingError = error
-          stop = true
-        }
+        let metadata = self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
+        let kind = self.parseMediaKind(url, duration: metadata.duration)
+        handler(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
+        lastMetadataLine = nil
+        lastURL = nil
       }
       lineNumber += 1
-    }
-
-    if let error = mediaMetadataParsingError {
-      throw error
     }
   }
 
@@ -199,9 +180,13 @@ public final class PlaylistParser {
     guard var rawString = input.rawString else {
       throw ParsingError.invalidSource
     }
-    guard rawString.starts(with: filePrefix) else {
+    if !rawString.starts(with: filePrefix) {
+      guard let range = rawString.firstRange(of: filePrefix) else {
         let actualFilePrefix = String(rawString.prefix { !$0.isNewline })
         throw ParsingError.invalidSourcePrefix(actualFilePrefix)
+    }
+      rawString.removeSubrange(...range.upperBound)
+      return rawString
     }
     rawString.removeFirst(filePrefix.count)
     return rawString
@@ -226,8 +211,8 @@ public final class PlaylistParser {
 
   internal typealias Show = (name: String, se: (s: Int, e: Int)?)
 
-  internal func parseMetadata(line: Int, rawString: String, url: URL) throws -> Playlist.Media.Metadata {
-    let duration = try extractDuration(line: line, rawString: rawString)
+  internal func parseMetadata(line: Int, rawString: String, url: URL) -> Playlist.Media.Metadata {
+    let duration = extractDuration(line: line, rawString: rawString) ?? -9999
     let attributes = parseAttributes(rawString: rawString, url: url)
     let name = extractName(rawString)
     return (duration, attributes, name)
@@ -241,13 +226,9 @@ public final class PlaylistParser {
     return input.starts(with: "#EXT")
   }
 
-  internal func extractDuration(line: Int, rawString: String) throws -> Int {
-    guard
-      let match = durationRegex.firstMatch(in: rawString),
-      let duration = Int(match)
-    else {
-      throw ParsingError.missingDuration(line, rawString)
-    }
+  internal func extractDuration(line: Int, rawString: String) -> Int? {
+    guard let match = durationRegex.firstMatch(in: rawString) else { return nil }
+    let duration = Int(match)
     return duration
   }
 
@@ -308,7 +289,6 @@ public final class PlaylistParser {
   }
 
   // MARK: - Regex
-
   internal let durationRegex: RegularExpression = #"#EXTINF:\s*(\-*\d+)"#
   internal let nameRegex: RegularExpression = #".*,(.+?)$"#
 
