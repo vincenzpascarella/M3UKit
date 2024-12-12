@@ -66,7 +66,6 @@ public final class PlaylistParser {
 
     var lastMetadataLine: String?
     var lastURL: URL?
-    var mediaMetadataParsingError: Error?
     var lineNumber = 0
 
     rawString.enumerateLines { [weak self] line, stop in
@@ -82,23 +81,15 @@ public final class PlaylistParser {
       }
 
       if let metadataLine = lastMetadataLine, let url = lastURL {
-        do {
-          let metadata = try self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
-          let kind = self.parseMediaKind(url, duration: metadata.duration)
-          medias.append(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
-          lastMetadataLine = nil
-          lastURL = nil
-        } catch {
-          mediaMetadataParsingError = error
-          stop = true
-        }
+        let metadata = self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
+        let kind = self.parseMediaKind(url, duration: metadata.duration)
+        medias.append(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
+        lastMetadataLine = nil
+        lastURL = nil
+        
       }
 
       lineNumber += 1
-    }
-
-    if let error = mediaMetadataParsingError {
-      throw error
     }
 
     return Playlist(medias: medias)
@@ -116,7 +107,6 @@ public final class PlaylistParser {
 
     var lastMetadataLine: String?
     var lastURL: URL?
-    var mediaMetadataParsingError: Error?
     var lineNumber = 0
 
     rawString.enumerateLines { [weak self] line, stop in
@@ -132,22 +122,13 @@ public final class PlaylistParser {
       }
 
       if let metadataLine = lastMetadataLine, let url = lastURL {
-        do {
-          let metadata = try self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
-          let kind = self.parseMediaKind(url, duration: metadata.duration)
-          handler(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
-          lastMetadataLine = nil
-          lastURL = nil
-        } catch {
-          mediaMetadataParsingError = error
-          stop = true
-        }
+        let metadata = self.parseMetadata(line: lineNumber, rawString: metadataLine, url: url)
+        let kind = self.parseMediaKind(url, duration: metadata.duration)
+        handler(.init(metadata: metadata, kind: kind, url: url, lineInM3U: lineNumber))
+        lastMetadataLine = nil
+        lastURL = nil
       }
       lineNumber += 1
-    }
-
-    if let error = mediaMetadataParsingError {
-      throw error
     }
   }
 
@@ -199,9 +180,13 @@ public final class PlaylistParser {
     guard var rawString = input.rawString else {
       throw ParsingError.invalidSource
     }
-    guard rawString.starts(with: filePrefix) else {
+    if !rawString.starts(with: filePrefix) {
+      guard let range = rawString.firstRange(of: filePrefix) else {
         let actualFilePrefix = String(rawString.prefix { !$0.isNewline })
         throw ParsingError.invalidSourcePrefix(actualFilePrefix)
+    }
+      rawString.removeSubrange(...range.upperBound)
+      return rawString
     }
     rawString.removeFirst(filePrefix.count)
     return rawString
@@ -226,8 +211,8 @@ public final class PlaylistParser {
 
   internal typealias Show = (name: String, se: (s: Int, e: Int)?)
 
-  internal func parseMetadata(line: Int, rawString: String, url: URL) throws -> Playlist.Media.Metadata {
-    let duration = try extractDuration(line: line, rawString: rawString)
+  internal func parseMetadata(line: Int, rawString: String, url: URL) -> Playlist.Media.Metadata {
+    let duration = extractDuration(line: line, rawString: rawString) ?? -9999
     let attributes = parseAttributes(rawString: rawString, url: url)
     let name = extractName(rawString)
     return (duration, attributes, name)
@@ -241,13 +226,9 @@ public final class PlaylistParser {
     return input.starts(with: "#EXT")
   }
 
-  internal func extractDuration(line: Int, rawString: String) throws -> Int {
-    guard
-      let match = durationRegex.firstMatch(in: rawString),
-      let duration = Int(match)
-    else {
-      throw ParsingError.missingDuration(line, rawString)
-    }
+  internal func extractDuration(line: Int, rawString: String) -> Int? {
+    guard let match = durationRegex.firstMatch(in: rawString) else { return nil }
+    let duration = Int(match)
     return duration
   }
 
@@ -275,14 +256,39 @@ public final class PlaylistParser {
 
   internal func parseAttributes(rawString: String, url: URL) -> Playlist.Media.Attributes {
     var attributes = Playlist.Media.Attributes()
+    if let name = attributesNameRegex.firstMatch(in: rawString) {
+      let show = parseSeasonEpisode(name)
+      attributes.name = show.name
+      attributes.seasonNumber = show.se?.s
+      attributes.episodeNumber = show.se?.e
+    }
     if let groupTitle = attributesGroupTitleRegex.firstMatch(in: rawString) {
-      attributes.groupTitle = groupTitle
+      if attributes.seasonNumber != nil {
+          attributes.groupTitle = attributes.name
+      } else {
+          attributes.groupTitle = groupTitle
+      }
     }
     return attributes
   }
 
-  // MARK: - Regex
+  internal func parseSeasonEpisode(_ input: String) -> Show {
+    let ranges = seasonEpisodeRegex.matchingRanges(in: input)
+    guard
+      ranges.count == 3,
+      let s = Int(input[ranges[1]]),
+      let e = Int(input[ranges[2]])
+    else {
+      return (name: input, se: nil)
+    }
+    var name = input
+    if options.contains(.removeSeriesInfoFromText) {
+      name.removeSubrange(ranges[0])
+    }
+    return (name: name, se: (s, e))
+  }
 
+  // MARK: - Regex
   internal let durationRegex: RegularExpression = #"#EXTINF:\s*(\-*\d+)"#
   internal let nameRegex: RegularExpression = #".*,(.+?)$"#
 
@@ -290,5 +296,7 @@ public final class PlaylistParser {
   internal let mediaKindSeriesRegex: RegularExpression = #"\/series\/"#
   internal let mediaKindLiveRegex: RegularExpression = #"\/live\/"#
 
+  internal let seasonEpisodeRegex: RegularExpression = #" (?i)s(\d+) ?(?i)e(\d+)"#
+  internal let attributesNameRegex: RegularExpression = #"tvg-name=\"(.?|.+?)\""#
   internal let attributesGroupTitleRegex: RegularExpression = #"group-title=\"(.?|.+?)\""#
 }
