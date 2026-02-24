@@ -1,7 +1,7 @@
 #EXTM3U
 #EXTINF:-1 tvg-id="" tvg-name="Historic_planet_content" tvg-logo="" group-title="Apple Examples",Historic Plane
 https://devstreaming-cdn.apple.com/videos/streaming/examples/historic_planet_content_2023-10-26-3d-video/main.m3u8
-#EXTINF:-1 tvg-id="" tvg-name="adv_dv_atmos" tvg-logo="" group-title="Apple Examples",Adv_Dv_Atmos
+#EXTINF:-1 tvg-id="" tvg-name="adv_dv_atmos" tvg-logo="" group-title="Apple Examples",Air Streaming
 https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8
 #EXTINF:-1 tvg-id="" tvg-name="Beach" tvg-logo="" group-title="Apple Examples",Beach
 http://playgrounds-cdn.apple.com/assets/beach/index.m3u8
@@ -39,3 +39,4 @@ https://filesamples.com/samples/video/mkv/sample_3840x2160.mkv
 https://filesamples.com/samples/video/mkv/sample_2560x1440.mkv
 #EXTINF:-1 tvg-name="MKV MultiSub&Audio" tvg-logo="" group-title="MKV",MKV MultiSub&Audio
 https://raw.githubusercontent.com/ietf-wg-cellar/matroska-test-files/master/test_files/test5.mkv
+
